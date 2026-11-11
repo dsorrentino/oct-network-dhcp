@@ -93,7 +93,7 @@ const MANAGED_BY = 'oct-network-dhcp';
 export const EXTENSION_LABEL = 'communitytools.io/extension';
 export const DHCP_SCC = 'oct-dhcp-netraw';
 export const DHCP_SCC_CLUSTERROLE = 'oct-dhcp-netraw-use';
-const DHCP_SERVER_IMAGE = 'quay.io/cjanisze/oct-network-dhcp-server:1.0.1-ocp4.22';
+const DHCP_SERVER_IMAGE = 'quay.io/openshift-community-tools/oct-network-dhcp-server:1.0.1-ocp4.22';
 
 /* ------------------------------------------------------------------ */
 /*  IP validation helpers                                              */

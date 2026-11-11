@@ -9,7 +9,7 @@ This repository is the **Network DHCP** ConsolePlugin: create and manage dnsmasq
 | | Value |
 | --- | --- |
 | Plugin ID / ConsolePlugin / `package.json` `consolePlugin.name` | **`oct-network-dhcp`** |
-| Image | `quay.io/cjanisze/oct-network-dhcp:1.0.0-ocp4.22` (`<semver>-ocp<major.minor>`) |
+| Image | `quay.io/openshift-community-tools/oct-network-dhcp:1.0.0-ocp4.22` (`<semver>-ocp<major.minor>`) |
 | i18n | `plugin__oct-network-dhcp` |
 
 Display name is **Network DHCP**. No PVC or discovery sidecar for the plugin itself.
@@ -47,7 +47,7 @@ The plugin creates Deployments that reference a sidecar image with its own indep
 
 | Image | Current version | Quay repo |
 | --- | --- | --- |
-| `oct-network-dhcp-server` | **1.0.0** | `quay.io/cjanisze/oct-network-dhcp-server` |
+| `oct-network-dhcp-server` | **1.0.0** | `quay.io/openshift-community-tools/oct-network-dhcp-server` |
 
 The discovery-service/dnsmasq server version (`1.0.0`) is independent of the plugin version (`1.0.0`). After rebuilding either image, update the deploy YAML in the storefront, rebuild the storefront image, and run `scripts/validate-catalog.sh`. See `oct-release-checklist.mdc`.
 
