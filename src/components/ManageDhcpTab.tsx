@@ -264,29 +264,35 @@ const ManageDhcpTab: FC<ManageDhcpTabProps> = ({ inventory, vmis, rawConfigMaps 
       }
 
       // The last DHCP server is gone: remove the SCC and the ClusterRole that grants
-      // its use, so no privileged-capability SCC stays on the cluster.
-      const remaining = await k8sListItems<K8sResourceCommon>({
-        model: DeploymentModel,
-        queryParams: { labelSelector: { matchLabels: { 'app.kubernetes.io/managed-by': 'oct-network-dhcp' } } },
-      });
-      if (remaining.length === 0) {
-        dashboardLogger.info(LOG_ACTION, 'Last DHCP server deleted: removing SCC and ClusterRole', DHCP_SCC);
-        try {
-          await k8sDelete({
-            model: ClusterRoleModel,
-            resource: { apiVersion: 'rbac.authorization.k8s.io/v1', kind: 'ClusterRole', metadata: { name: DHCP_SCC_CLUSTERROLE } },
-          });
-        } catch (e) {
-          ignoreMissing(e, `ClusterRole ${DHCP_SCC_CLUSTERROLE}`);
+      // its use, so no privileged-capability SCC stays on the cluster. Best effort: the
+      // server itself is already deleted, so a user who may not list Deployments in
+      // every namespace (or delete the SCC) gets a logged warning, not a failed delete.
+      try {
+        const remaining = await k8sListItems<K8sResourceCommon>({
+          model: DeploymentModel,
+          queryParams: { labelSelector: { matchLabels: { 'app.kubernetes.io/managed-by': 'oct-network-dhcp' } } },
+        });
+        if (remaining.length === 0) {
+          dashboardLogger.info(LOG_ACTION, 'Last DHCP server deleted: removing SCC and ClusterRole', DHCP_SCC);
+          try {
+            await k8sDelete({
+              model: ClusterRoleModel,
+              resource: { apiVersion: 'rbac.authorization.k8s.io/v1', kind: 'ClusterRole', metadata: { name: DHCP_SCC_CLUSTERROLE } },
+            });
+          } catch (e) {
+            ignoreMissing(e, `ClusterRole ${DHCP_SCC_CLUSTERROLE}`);
+          }
+          try {
+            await k8sDelete({
+              model: SecurityContextConstraintsModel,
+              resource: { apiVersion: 'security.openshift.io/v1', kind: 'SecurityContextConstraints', metadata: { name: DHCP_SCC } },
+            });
+          } catch (e) {
+            ignoreMissing(e, `SCC ${DHCP_SCC}`);
+          }
         }
-        try {
-          await k8sDelete({
-            model: SecurityContextConstraintsModel,
-            resource: { apiVersion: 'security.openshift.io/v1', kind: 'SecurityContextConstraints', metadata: { name: DHCP_SCC } },
-          });
-        } catch (e) {
-          ignoreMissing(e, `SCC ${DHCP_SCC}`);
-        }
+      } catch (cleanupErr) {
+        dashboardLogger.warn(LOG_ACTION, 'Server deleted; could not check for other DHCP servers or remove the shared SCC (a cluster admin can delete it when no server uses it)', getK8sErrorMessage(cleanupErr));
       }
 
       dashboardLogger.info(LOG_ACTION, 'Delete succeeded', deleteTarget.name);
