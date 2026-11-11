@@ -40,7 +40,7 @@ oc set image deploy/oct-network-dhcp -n oct-network-dhcp plugin=quay.io/<you>/oc
 **Otherwise** deploy the YAML in this repo with your image:
 
 ```bash
-sed 's|quay.io/cjanisze/oct-network-dhcp:[^ ]*|quay.io/<you>/oct-network-dhcp:dev|' deploy/install.yaml | oc apply -f -
+sed 's|quay.io/openshift-community-tools/oct-network-dhcp:[^ ]*|quay.io/<you>/oct-network-dhcp:dev|' deploy/install.yaml | oc apply -f -
 ```
 
 and enable the plugin in the console (skip if the storefront already enabled it):
